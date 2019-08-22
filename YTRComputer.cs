@@ -18,6 +18,37 @@ namespace ConsoleApplication1
           result = 69
          
          */
+        string computeExponents(string arg)
+        {
+            while (arg.Contains("^"))
+            {
+                char[] operators = new char[] { '+', '-', '*', '/', '%', '^' };
+
+                string[] pieces = Regex.Split(arg, @"(?<=[+*/%^-])");
+
+                int idxExp = -1;
+                for (int i = 0; i < pieces.Length; i++)
+                {
+                    if (pieces[i].Contains("^"))
+                    {
+                        idxExp = i;
+                        break;
+                    }
+                }
+
+                string computeThis = pieces[idxExp] + pieces[idxExp + 1];
+                string computed = computeSimplestExp(computeThis);
+
+                string originExpStatement = pieces[idxExp] + pieces[idxExp + 1];
+                if (pieces.Length > idxExp + 2)
+                    originExpStatement = originExpStatement.Substring(0, originExpStatement.Length - 1);
+
+                arg = arg.Replace(originExpStatement, computed);
+
+            }
+
+            return arg;
+        }
         public string Compute(string arg)
         {
             while (arg.Contains(" "))
@@ -35,37 +66,10 @@ namespace ConsoleApplication1
 
             if (arg.Contains("^"))
             {
-                string tmp = arg;
-                // 2+3^2*4^2
-                while (tmp.Contains("^"))
-                {
-                    char[] operators = new char[] { '+', '-', '*', '/', '%', '^' };
-
-                    string[] pieces = Regex.Split(tmp, @"(?<=[+*/%^-])");
-
-                    int idxExp = -1;
-                    for (int i = 0; i < pieces.Length; i++)
-                    {
-                        if (pieces[i].Contains("^"))
-                        {
-                            idxExp = i;
-                            break;
-                        }
-                    }
-
-                    string computeThis = pieces[idxExp] + pieces[idxExp + 1];
-                    string computed = computeSimplestExp(computeThis);
-
-                    string originExpStatement = pieces[idxExp] + pieces[idxExp + 1];
-                    if (pieces.Length > idxExp + 2)
-                        originExpStatement = originExpStatement.Substring(0, originExpStatement.Length - 1);
-
-                    tmp = tmp.Replace(originExpStatement, computed);
-
-                }
-
-                arg = tmp;
+         
+                arg = computeExponents(arg);
             }
+
             try
             {
                 return new DataTable().Compute(arg, "").ToString();
